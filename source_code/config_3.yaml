@@ -1,0 +1,108 @@
+technologies:
+    Wind: 
+        color: "#00bfff"
+        map:
+            - Wind
+            - Offshore_Wind
+    Solar:
+        color: "#ffd700"
+        map:
+            - Central_PV 
+            - Commercial_PV 
+            - Residential_PV
+            - CSP_Trough_6h_Storage 
+            - CSP_Trough_No_Storage
+    Gas:
+        color: "#808080"
+        map:
+            - Gas_Steam_Turbine_Cogen
+            - Gas_Internal_Combustion_Engine
+            - Gas_Internal_Combustion_Engine_Cogen
+            - Gas_Steam_Turbine
+            - Gas_Combustion_Turbine
+            - Gas_Combustion_Turbine_Cogen
+            - CCGT
+            - CCGT_Cogen
+    Oil:
+        color: "#000000"
+        map:
+            - DistillateFuelOil_Internal_Combustion_Engine
+            - DistillateFuelOil_Combustion_Turbine
+    Coal:
+        color: "#8b4513"
+        map: 
+            - Coal_Steam_Turbine_Cogen 
+            - Coal_IGCC 
+            - Coal_Steam_Turbine
+    Biomass:
+        color: "#008000"
+        map:
+            - Bio_Gas_Steam_Turbine
+            - Bio_Solid_Steam_Turbine
+            - Bio_Gas
+            - Bio_Liquid_Steam_Turbine_Cogen
+            - Bio_Gas_Internal_Combustion_Engine
+            - Bio_Solid_Steam_Turbine_Cogen
+            - Bio_Gas_Internal_Combustion_Engine_Cogen
+    Geothermal: 
+        color: "#ff0000"
+        map:
+            - Geothermal
+    Storage (D): 
+        color: "#7fffd4"
+        map:
+            - Battery_Storage
+    Storage (C): 
+        color: "#840101"
+        map:
+            - Battery_Storage_Charge
+            - Compressed_Air_Energy_Storage         
+    Exports: 
+        color: "#fadadd"
+        map:
+            - Exports    
+    Imports: 
+        color: "#c4ccb3"
+        map:
+            - Imports  
+    Hydro: 
+        color: "#4169e1"
+        map:
+            - Hydro_NonPumped
+            - Hydro_Pumped
+    Nuclear: 
+        color: "#8a2be2"
+        map:
+            - Nuclear
+#    Wave:
+#        color: "#0000ff"
+#        map:
+#            - Wave
+    Waste:
+        color: "#ffa500"
+        map:
+            - Waste
+            - ST
+            - GT
+            - OT
+#    Other:
+#        color: "#ffffff"
+#        map:
+#            - Other
+tech_order:
+    - Nuclear
+    - Coal
+    - Oil
+    - Gas
+    - Biomass
+    - Geothermal
+    - Hydro
+    - Wind
+    - Solar
+    - Storage (D)
+    - Storage (C)
+    - Imports 
+    - Exports
+#   - Wave
+    - Waste
+#    - Other
