@@ -1,0 +1,11 @@
+scenario,short_name,order
+baseline,baseline,0
+baseline_fixed_capacity_4000,4,1
+baseline_fixed_capacity_4500,4.5,2
+baseline_fixed_capacity_5000,5,3
+baseline_fixed_capacity_5500,5.5,4
+baseline_fixed_capacity_6000,6,5
+baseline_fixed_capacity_7000,7,6
+baseline_fixed_capacity_8000,8,7
+baseline_fixed_capacity_9000,9,8
+baseline_fixed_capacity_10000,10,9
