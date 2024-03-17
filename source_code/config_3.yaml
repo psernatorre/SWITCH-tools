@@ -74,10 +74,10 @@ technologies:
         color: "#8a2be2"
         map:
             - Nuclear
-#    Wave:
-#        color: "#0000ff"
-#        map:
-#            - Wave
+    Wave:
+        color: "#0000ff"
+        map:
+            - Wave
     Waste:
         color: "#ffa500"
         map:
@@ -85,24 +85,24 @@ technologies:
             - ST
             - GT
             - OT
-#    Other:
-#        color: "#ffffff"
-#        map:
-#            - Other
+    Other:
+        color: "#ffffff"
+        map:
+            - Other
 tech_order:
-    - Nuclear
-    - Coal
-    - Oil
-    - Gas
-    - Biomass
-    - Geothermal
-    - Hydro
     - Wind
     - Solar
+    - Gas
+    - Oil
+    - Coal
+    - Biomass
+    - Geothermal
     - Storage (D)
     - Storage (C)
-    - Imports 
     - Exports
-#   - Wave
+    - Imports
+    - Hydro
+    - Nuclear
+    - Wave
     - Waste
 #    - Other

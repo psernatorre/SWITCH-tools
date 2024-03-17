@@ -18,7 +18,7 @@ from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 
 # Constant definitions
-with open("./config_3.yaml") as file:
+with open("./config_1.yaml") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)
 
 tech = {key: val["map"] for key, val in config["technologies"].items()}
@@ -29,7 +29,7 @@ tech_dict = {
     new_tech: tech for tech, new_techs in tech.items() for new_tech in new_techs
 }
 
-data_path = "/Users/psernatorre/Documents/power_systems_expansion/switch_scenarios/gridlab/"
+data_path = "/home/psernatorre/power_systems_expansion/switch_scenarios/paper/"
 
 
 # ----------------------------------------------------       ------------------------------------------------------------------------------------------------
@@ -2349,7 +2349,6 @@ def monthly_demand(scenarios_file_name: str,
     if len(analysis_zones)==0:
         analysis_zones = list(load_balance.load_zone.unique())
 
-    load_balance = load_balance.loc[load_balance.load_zone.isin(analysis_zones)]
     load_balance = load_balance.pivot_table(index=['timestamp', 'scenario'], values='zone_demand_mw', aggfunc=np.sum)
     load_balance.reset_index(inplace=True)
 
@@ -2952,169 +2951,6 @@ def monthly_tx_losses(scenario_file_name: str,
     monthly_tx_losses_df.reset_index(inplace=True)
 
     return monthly_tx_losses_df
-
-
-# --------------------------------------------- TIMESERIES --------------------------------------------------------
-
-def load_timeseries(scenarios_file_name: str, analysis_scenario: list, analysis_zones: list,
-                    start_date=0, end_date=0, time_zone='utc'):
-
-    scenario, short_names, inv_short_names, order = read_scenarios(scenarios_file_name)
-
-    if len(analysis_scenario) >0:
-        scenario = [inv_short_names[i] for i in analysis_scenario] 
-      
-    load= get_data(scenario, "load_balance.csv", usecols=['load_zone', 'timestamp', 'zone_demand_mw'])
-    load.replace({"scenario": short_names}, inplace=True)
-    load['zone_demand_mw'] = load['zone_demand_mw']*(-1)
-
-    if len(analysis_zones)==0:
-        analysis_zones= list(load.load_zone.unique())
-
-    load = load.loc[load.load_zone.isin(analysis_zones)]
-    load = load.pivot_table(index=['scenario', 'timestamp'], values = 'zone_demand_mw', aggfunc = np.sum)
-    load.reset_index(inplace=True)
-    load["timestamp"]=pd.to_datetime(load["timestamp"], format='%Y%m%d%H', utc=True)
-    load["timestamp"]=load["timestamp"].dt.tz_convert(time_zone)
-
-    if (start_date!=0) & (end_date!=0):
-        time_1=datetime.strptime(str(start_date), '%Y %m %d %H').replace(tzinfo=timezone(time_zone))
-        time_2=datetime.strptime(str(end_date), '%Y %m %d %H').replace(tzinfo=timezone(time_zone))
-
-        load=load[(time_1 <= load.timestamp) & (load.timestamp < time_2)]  
-
-    return load
-
-
-def dispatch_timeseries(scenarios_file_name: str, analysis_scenario: list, analysis_zones: list, tech:list,
-                        start_date = 0, end_date = 0, time_zone = 'utc'):
-
-    scenario, short_names, inv_short_names, order = read_scenarios(scenarios_file_name)
-
-    if len(analysis_scenario) >0:
-        scenario = [inv_short_names[i] for i in analysis_scenario] 
-
-    dpch= get_data(scenario, "dispatch.csv", usecols=["generation_project", "timestamp", "gen_tech", "gen_load_zone", "DispatchGen_MW", 'Curtailment_MW'])
-    dpch.replace({"scenario": short_names}, inplace=True)
-
-    if len(analysis_zones)==0:
-            analysis_zones= list(dpch.gen_load_zone.unique())
-
-    if len(tech)==0:
-            tech = list(dpch.tech_map.unique())
-    
-    dpch=dpch.loc[(dpch.gen_load_zone.isin(analysis_zones)) & (dpch.tech_map.isin(tech))]
-
-    dpch = dpch.pivot_table(index=['scenario', 'timestamp', 'tech_map'], values = ['DispatchGen_MW', 'Curtailment_MW'], aggfunc = np.sum)
-    dpch.reset_index(inplace=True)
-    dpch = dpch.loc[dpch.tech_map.isin(tech)]
-    
-    dpch["timestamp"]=pd.to_datetime(dpch["timestamp"], format='%Y%m%d%H', utc=True)
-    dpch["timestamp"]=dpch["timestamp"].dt.tz_convert(time_zone)
-
-    if (start_date!=0) & (end_date!=0):
-        time_1=datetime.strptime(str(start_date), '%Y %m %d %H').replace(tzinfo=timezone(time_zone))
-        time_2=datetime.strptime(str(end_date), '%Y %m %d %H').replace(tzinfo=timezone(time_zone))
-
-        dpch=dpch[(time_1 <= dpch.timestamp) & (dpch.timestamp < time_2)]  
-
-    return dpch
-
-def lmp_timeseries(scenarios_file_name: str, analysis_scenario: list, analysis_zones:list, 
-                        start_date=0, end_date=0, time_zone='utc'):
-
-    scenario, short_names, inv_short_names, order = read_scenarios(scenarios_file_name)
-
-    if len(analysis_scenario) >0:
-        scenario = [inv_short_names[i] for i in analysis_scenario] 
-
-    lmp= get_data(scenario, "load_balance.csv")
-    lmp.replace({"scenario": short_names},inplace=True)
-    lmp=lmp.loc[lmp.load_zone.isin(analysis_zones)]
-    lmp = lmp.pivot_table(index=['scenario', 'timestamp'], values = ['normalized_energy_balance_duals_dollar_per_mwh'], aggfunc = np.sum)
-    lmp.reset_index(inplace=True)
-
-    lmp.rename(columns={'timepoint': 'timestamp'}, inplace=True)
-    lmp["timestamp"]=pd.to_datetime(lmp["timestamp"], format='%Y%m%d%H', utc=True)
-    lmp["timestamp"]=lmp["timestamp"].dt.tz_convert(time_zone)
-
-    if (start_date!=0) & (end_date!=0):
-        time_1=datetime.strptime(str(start_date), '%Y %m %d %H').replace(tzinfo=timezone(time_zone))
-        time_2=datetime.strptime(str(end_date), '%Y %m %d %H').replace(tzinfo=timezone(time_zone))
-
-        lmp=lmp[(time_1 <= lmp.timestamp) & (lmp.timestamp < time_2)]  
-    
-    return lmp
-
-
-def storage_timeseries(scenarios_file_name: str, analysis_scenario: list, analysis_zones:list, 
-                        start_date=0, end_date=0, time_zone='utc'):
-
-    scenario, short_names, inv_short_names, order = read_scenarios(scenarios_file_name)
-
-    if len(analysis_scenario) >0:
-        scenario = [inv_short_names[i] for i in analysis_scenario] 
-
-    stg= get_data(scenario, "storage_dispatch.csv")
-    stg.replace({"scenario": short_names},inplace=True)
-    stg=stg.loc[stg.load_zone.isin(analysis_zones)]
-    stg = stg.pivot_table(index=['scenario', 'timepoint'], values = ['StateOfCharge', 'ChargeMW','DischargeMW'], aggfunc = np.sum)
-    stg.reset_index(inplace=True)
-
-    stg.rename(columns={'timepoint': 'timestamp'}, inplace=True)
-    stg["timestamp"]=pd.to_datetime(stg["timestamp"], format='%Y%m%d%H', utc=True)
-    stg["timestamp"]=stg["timestamp"].dt.tz_convert(time_zone)
-
-    if (start_date!=0) & (end_date!=0):
-        time_1=datetime.strptime(str(start_date), '%Y %m %d %H').replace(tzinfo=timezone(time_zone))
-        time_2=datetime.strptime(str(end_date), '%Y %m %d %H').replace(tzinfo=timezone(time_zone))
-
-        stg=stg[(time_1 <= stg.timestamp) & (stg.timestamp < time_2)]  
-
-    return stg
-
-
-def poweflow_timeseries(scenarios_file_name: str, analysis_scenario: list, analysis_zones: list,
-                    start_date=0, end_date=0, time_zone='utc'):
-
-    scenario, short_names, inv_short_names, order = read_scenarios(scenarios_file_name)
-
-    if len(analysis_scenario) >0:
-        scenario = [inv_short_names[i] for i in analysis_scenario] 
-      
-    load= get_data(scenario, "load_balance.csv", usecols=['load_zone', 'timestamp', 'TXPowerNet'])
-    load.replace({"scenario": short_names}, inplace=True)
-
-    if len(analysis_zones)==0:
-        analysis_zones= list(load.load_zone.unique())
-
-    load = load.loc[load.load_zone.isin(analysis_zones)]
-    load = load.pivot_table(index=['scenario', 'timestamp'], values = 'TXPowerNet', aggfunc = np.sum)
-    load.reset_index(inplace=True)
-    load["timestamp"]=pd.to_datetime(load["timestamp"], format='%Y%m%d%H', utc=True)
-    load["timestamp"]=load["timestamp"].dt.tz_convert(time_zone)
-
-    load['Imports'] = load['TXPowerNet']
-    load['Exports'] = load['TXPowerNet']
-    load.loc[load.TXPowerNet < 0, 'Imports'] = 0
-    load.loc[load.TXPowerNet > 0, 'Exports'] = 0
-
-    if (start_date!=0) & (end_date!=0):
-        time_1=datetime.strptime(str(start_date), '%Y %m %d %H').replace(tzinfo=timezone(time_zone))
-        time_2=datetime.strptime(str(end_date), '%Y %m %d %H').replace(tzinfo=timezone(time_zone))
-
-        load=load[(time_1 <= load.timestamp) & (load.timestamp < time_2)]  
-
-    return load
-
-
-
-
-
-
-
-
-
 
 
 # -----------------------------------------------------------------------        -------------------------------------------------------------
